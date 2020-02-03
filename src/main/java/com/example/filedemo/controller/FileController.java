@@ -2,6 +2,8 @@ package com.example.filedemo.controller;
 
 import com.example.filedemo.payload.UploadFileResponse;
 import com.example.filedemo.service.FileStorageService;
+import kong.unirest.HttpResponse;
+import kong.unirest.Unirest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -35,6 +38,46 @@ public class FileController {
                 .path("/downloadFile/")
                 .path(fileName)
                 .toUriString();
+
+
+        //System.out.println("***** " + fileName + "  ****  " + file.getOriginalFilename());
+
+        // ################### Code for plate recognition ###########
+
+        //.com/example/filedemo/controller/FileController.java:44
+
+
+        // Get api key from https://app.platerecognizer.com/start/ and replace MY_API_KEY
+        String token = "7169389cb7dd21bf694f36eac9e6aa2a6e619d14";
+        String fileToServe = "/home/azzam/Desktop/SIH/bikes_ocr_new/" + fileName;
+
+        try{
+            HttpResponse<String> response = Unirest.post("https://api.platerecognizer.com/v1/plate-reader/")
+                    .header("Authorization", "Token "+token)
+                    .field("upload", new File(fileToServe))
+                    .asString();
+            System.out.println("Recognize:");
+            System.out.println(response.getBody().toString());
+        }
+        catch(Exception e){
+            System.out.println(e);
+        }
+
+        try{
+            HttpResponse<String> response = Unirest.get("https://api.platerecognizer.com/v1/statistics/")
+                    .header("Authorization", "Token "+token)
+                    .asString();
+            System.out.println("Usage:");
+            System.out.println(response.getBody().toString());
+        }
+        catch(Exception e){
+            System.out.println(e);
+        }
+
+
+    // ######## Code ends for API Call ##########
+
+
 
         return new UploadFileResponse(fileName, fileDownloadUri,
                 file.getContentType(), file.getSize());
