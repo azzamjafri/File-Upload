@@ -1,9 +1,13 @@
 package com.example.filedemo.controller;
 
+import io.quicktype.Converter;
 import com.example.filedemo.payload.UploadFileResponse;
 import com.example.filedemo.service.FileStorageService;
+//import jdk.nashorn.internal.parser.JSONParser;
+import io.quicktype.PlateRecognise;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
+import kong.unirest.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,13 +66,19 @@ public class FileController {
         catch(Exception e){
             System.out.println(e);
         }
-
+        HttpResponse<String> response = null;
         try{
-            HttpResponse<String> response = Unirest.get("https://api.platerecognizer.com/v1/statistics/")
+            response = Unirest.get("https://api.platerecognizer.com/v1/statistics/")
                     .header("Authorization", "Token "+token)
                     .asString();
             System.out.println("Usage:");
-            System.out.println(response.getBody().toString());
+            //System.out.println(response.getBody().toString());
+            //String JSON = response.getBody().toString();
+
+
+            PlateRecognise data = Converter.fromJsonString(response.getBody());
+            System.out.println(data.getTimestamp());
+
         }
         catch(Exception e){
             System.out.println(e);
@@ -80,7 +90,7 @@ public class FileController {
 
 
         return new UploadFileResponse(fileName, fileDownloadUri,
-                file.getContentType(), file.getSize());
+                file.getContentType(), file.getSize(), response.getBody().toString());
     }
 
     @PostMapping("/uploadMultipleFiles")

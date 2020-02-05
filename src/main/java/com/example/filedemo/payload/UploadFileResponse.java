@@ -6,12 +6,14 @@ public class UploadFileResponse {
     private String fileDownloadUri;
     private String fileType;
     private long size;
+    private String json;
 
-    public UploadFileResponse(String fileName, String fileDownloadUri, String fileType, long size) {
+    public UploadFileResponse(String fileName, String fileDownloadUri, String fileType, long size, String json) {
         this.fileName = fileName;
         this.fileDownloadUri = fileDownloadUri;
         this.fileType = fileType;
         this.size = size;
+        this.json = json;
     }
 
     public String getFileName() {
